@@ -71,10 +71,8 @@ class ReportController extends Controller
             ["name"=> "Reporte diario de $dateReport", "href"=>""],
         );
 
-
         // * get current user
         $AUTH_USER = Auth::user();
-
 
         // * retrive the general_direction based on user level
         if( $AUTH_USER->level_id == 1 && $request->has('gd') )/*Admin*/{
@@ -84,25 +82,22 @@ class ReportController extends Controller
             $generalDirection = GeneralDirection::where('id', $AUTH_USER->general_direction_id)->first();
         }
 
-
         // * retornar vista
         return Inertia::render("Reports/Daily", [
             "title" => "Generando reporte diario del " . Carbon::parse($request->query('date'))->format("d M Y"),
             "breadcrumbs" => $breadcrumbs,
             "report" => Inertia::lazy( fn() => $this->makeDailyReport($AUTH_USER, $dateReport, $generalDirection, $includeAllEmployees) ),
         ]);
-
     }
 
-    public function createMonthlyReport(Request $request) {
-
+    public function createMonthlyReport(Request $request) 
+    {
         // * validate request
         if( !$request->has('gd') || !$request->has('y') || !$request->has('m') ){
             return redirect()->back()->withErrors([
                 "message" => "General Direction, Year and Month parameters are required."
             ])->withInput();
         }
-
 
         // * prepared variables
         $generalDirection = null;
@@ -112,14 +107,12 @@ class ReportController extends Controller
         $includeAllEmployees = $request->query('a', 0) == 1;
         $AUTH_USER = Auth::user();
 
-
         // * generate breadcumbs for the view
         $breadcrumbs = array(
             ["name"=> "Inicio", "href"=> "/dashboard"],
             ["name"=> "Generar reportes", "href"=> route('reports.index') ],
-            ["name"=> "Reporte mensual de " . $dateReport->format('M Y'), "href"=>""],
+            ["name"=> "Reporte mensual de " . $dateReport->format('M Y'), "href" => ""],
         );
-
 
         // * retrive the general_direction based on user level
         if( $AUTH_USER->level_id == 1 && $request->has('gd') )/*Admin*/{
@@ -138,7 +131,6 @@ class ReportController extends Controller
             "breadcrumbs" => $breadcrumbs,
             "reportId" => $reportData->id
         ]);
-
     }
 
     public function downloadDailyReporte(Request $request, $report_name){
@@ -369,7 +361,6 @@ class ReportController extends Controller
             'subdirectorateId' => ($AUTH_USER->level_id > 3) ?$AUTH_USER->subdirectorate_id :null,
             'departmentId' => ($AUTH_USER->level_id > 4) ?$AUTH_USER->department_id :null,
         ]);
-
 
         Log::debug("Dispatching the report queue");
         \App\Jobs\MakeMonthlyReport::dispatch($reportData, $employees );
